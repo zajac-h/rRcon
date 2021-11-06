@@ -2,13 +2,8 @@
   "expo": {
     "name": "rRcon",
     "slug": "rRcon",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+    "version": "1.1.0",
+    "orientation": "portrait"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,9 +19,5 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     }
-  }
 }
