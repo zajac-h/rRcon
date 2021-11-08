@@ -12,7 +12,7 @@ export default function Login({ navigation }) {
             const socket = new WebSocket(`ws://${serverIp}:${port}/${password}`);
 
             socket.onopen = () => {
-                navigation.navigate('Console', socket);
+                navigation.navigate('Console', {socket: socket, serverIp: serverIp});
             }
         } catch (error) {
             alert(error);
