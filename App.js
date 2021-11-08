@@ -1,5 +1,3 @@
-import io from 'socket.io-client';
-
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
