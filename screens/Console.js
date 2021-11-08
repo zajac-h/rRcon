@@ -1,15 +1,13 @@
 import React from 'react';
-import { View, Text, Button, FlatList } from 'react-native';
+import { View, Text, TextInput, Button, FlatList } from 'react-native';
+import moment from 'moment';
 
 export default function Console({ navigation }) {
     const socket = navigation.getParam('socket');
     const serverIp = navigation.getParam('serverIp');
 
-    const [consoleData, editConsoleData] = React.useState([
-        {key: '0', time: '11:40' ,message: 'console test'},
-        {key: '1', time: '11:41' ,message: 'krin'},
-        {key: '2', time: '11:59' ,message: 'fgsdfrthrthdf'},
-    ]);
+    const [consoleData, editConsoleData] = React.useState([]);
+    const [consoleInput, setConsoleInput] = React.useState('');
 
     //Buttons functionalities
     const openSettings = () => {
@@ -22,19 +20,52 @@ export default function Console({ navigation }) {
 
     const closeSocket = () => {
         socket.close();
+        navigation.navigate('Login');
+    }
+    //=====
+
+    //Console input
+    const messageSend = () => {
+        const message = JSON.stringify({
+            'Identifier': 1,
+            'Message': consoleInput,
+            'Name': 'WebRcon'});
+        socket.send(message);
+
+        const date = moment().format('HH:mm');       
+        editConsoleData(state => [...state, {
+            identifier: 1,
+            time: date,
+            message: consoleInput,
+            type: 'Command'}]);
+
+        setConsoleInput('');
+
+        //if (consoleData.length() > 1000) {
+        //    
+        //}
     }
     //=====
 
     //Socket event handling (socket)
-    socket.onmessage = () => {}
+    socket.onmessage = (event) => {
+        const message = event.data;
+        const date = moment().format('HH:mm');
+        const data = JSON.parse(message);
+        editConsoleData(state => [...state, {
+            identifier: 0,
+            time: date,
+            message: data.Message,
+            type: data.Type}]);
 
-    socket.onerror = () => {}
+        //if (consoleData.length > 100) {
+        //    
+        //}
+    }
 
-    socket.onclose = (event) => {
-        if (event.wasClean) alert('Connection with socket closed.');
-        if (!event.wasClean) alert('Connection with socket closed unexpectedly.');
-        
-        navigation.navigate('Login');
+    socket.onerror = (event) => {
+        alert('Socket error.');
+        socket.close();
     }
     //=====
 
@@ -47,11 +78,19 @@ export default function Console({ navigation }) {
             <Button title='Close connection' onPress={closeSocket} />
 
             <FlatList
-                data={console}
+                style={{height: 400}}
+                data={consoleData}
+                invertet={true}
                 renderItem={({ item }) => (
                     <Text>{ item.time } --- { item.message }</Text>
                 )}
             />
+
+            <TextInput
+                value={consoleInput}
+                onChangeText={(val) => setConsoleInput(val)}
+                onSubmitEditing={messageSend}            
+             />
         </View>
     );
 } 
