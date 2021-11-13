@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, Button, FlatList } from 'react-native';
+import {AutoScrollFlatList} from "react-native-autoscroll-flatlist";
 import moment from 'moment';
 
 export default function Console({ navigation }) {
@@ -7,7 +8,6 @@ export default function Console({ navigation }) {
     const serverIp = navigation.getParam('serverIp');
 
     const [consoleData, editConsoleData] = React.useState([]);
-    const [consoleInput, setConsoleInput] = React.useState('');
 
     //Buttons functionalities
     const openSettings = () => {
@@ -21,6 +21,28 @@ export default function Console({ navigation }) {
     const closeSocket = () => {
         socket.close();
         navigation.navigate('Login');
+    }
+    //=====
+
+    //Socket event handling (socket)
+    socket.onmessage = (event) => {
+        const message = event.data;
+        const date = moment().format('HH:mm');
+        const data = JSON.parse(message);
+        editConsoleData(state => [...state, {
+            identifier: 0,
+            time: date,
+            message: data.Message,
+            type: data.Type}]);
+
+        if (consoleData.length > 256) {
+            console.log('e');    
+        }
+    }
+
+    socket.onerror = (event) => {
+        alert('Socket error.');
+        socket.close();
     }
     //=====
 
@@ -41,31 +63,9 @@ export default function Console({ navigation }) {
 
         setConsoleInput('');
 
-        //if (consoleData.length() > 1000) {
-        //    
-        //}
-    }
-    //=====
-
-    //Socket event handling (socket)
-    socket.onmessage = (event) => {
-        const message = event.data;
-        const date = moment().format('HH:mm');
-        const data = JSON.parse(message);
-        editConsoleData(state => [...state, {
-            identifier: 0,
-            time: date,
-            message: data.Message,
-            type: data.Type}]);
-
-        //if (consoleData.length > 100) {
-        //    
-        //}
-    }
-
-    socket.onerror = (event) => {
-        alert('Socket error.');
-        socket.close();
+        if (consoleData.length() > 256) {
+            console.log('e');
+        }
     }
     //=====
 
@@ -77,7 +77,7 @@ export default function Console({ navigation }) {
             <Button title='Utilities' onPress={openUtilities} />
             <Button title='Close connection' onPress={closeSocket} />
 
-            <FlatList
+            <AutoScrollFlatList
                 style={{height: 400}}
                 data={consoleData}
                 invertet={true}
